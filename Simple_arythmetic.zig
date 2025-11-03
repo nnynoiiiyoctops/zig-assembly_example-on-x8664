@@ -51,6 +51,28 @@ pub fn main() !void {
 
   try writer.interface.print("imul:  |a: {d}|b: {d}|\n", .{ a, b });
   try writer.interface.flush();
+
+  asm volatile(
+      \\mov    $8,    %[a]  //a = 2
+      \\mov    $0,    %[b]  //b = 0
+      \\mul   %[a]          //a = a * a
+      : [a] "+r" (a),
+        [b] "=r" (b)
+  );
+  //Тут я должен сказать что большинство этих инструкций я тыкаю наугад)
+  //Так что вы выбрали крайне сомнительный источник для обучения
+  
+  try writer.interface.print("mul:   |a: {d}|b: {d}|\n", .{ a, b });
+  try writer.interface.flush();
+
+  asm volatile(
+    \\
+      :
+      :
+  );
+
+  try writer.interface.print("mul:   |a: {d}|b: {d}|\n", .{ a, b });
+  try writer.interface.flush();
   
   return;
 }
