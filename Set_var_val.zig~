@@ -1,7 +1,0 @@
-const std_lib = @import("std");
-
-pub fn main() !void {
-  a
-    
-  return;
-}
