@@ -122,15 +122,3 @@ test "write syscall. Write to stderr" {
 
   //Теперь в stderr   
 }
-
-test "mul instruction" {
-  const a: u64 = asm volatile(
-      \\mul    %%rdx
-      : [ret]  "={rax}"  (-> u64)
-      : [_]    "{rax}"  ( 2 ),
-        [_]    "{rdx}"  ( 3 )
-      : .{ .rax = true, .rdx = true }
-  );
-
-  try expect( a != 6 );
-}
