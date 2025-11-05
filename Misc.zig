@@ -59,4 +59,78 @@ test "write struct in memory" {
   
 }
 
+test "get address" {
 
+  var a: u64 = 0;
+
+  asm volatile(
+      \\leaq     %[val],   %%rax  //Берем аддрес переменной val и помещаем в rax
+      \\movq    $42,      (%%rax)
+      : [val]  "=m"  (a)          //Без "=m" работать не будет. "=r" тоже работать не будет
+      :                           //Я настоятельно рекомендую запустить с constraint "=r" 
+      : .{} );                    //Так как эта ошибка показывает весьма интересные аргументы 
+                                  //А именно non lea rax rax none none
+  try expect( a == 42 );
+  
+}
+
+// test "linux exit syscall"{  //Закомментированно по 1 простой причине - этот тест никогда не завершается
+//   asm volatile(             //Он работает. Вместе с этим не так как хотелось бы
+//       \\syscall
+//       : 
+//       : [_] "{rax}" (60),
+//         [_] "{rdi}" (1)
+//       : .{ .rax = true,
+//           .rdi = true } );
+//   unreachable;
+
+// }
+
+test "write syscall. Write to stdout" {
+  const string = "\nПривет из сисколла в stdout!)\n";
+
+  //Сперва в stdout
+  asm volatile(
+      \\syscall
+      : 
+      : [_] "{rax}" (1), //номер системного вызова
+        [_] "{rdi}" (1), //stdout
+        [_] "{rsi}" (&string[0]),
+        [_] "{rdx}" (string.len)
+      : .{ .rax = true,
+           .rdi = true,
+           .rsi = true,
+           .rdx = true } );
+    
+}
+
+//Теперь в stderr
+test "write syscall. Write to stderr" {
+  const string = "\nПривет из сисколла в stderr!)\n";
+
+  asm volatile(
+      \\syscall
+      : 
+      : [_] "{rax}" (1), //номер системного вызова
+        [_] "{rdi}" (2), //stderr
+        [_] "{rsi}" (&string[0]),
+        [_] "{rdx}" (string.len)
+      : .{ .rax = true,
+           .rdi = true,
+           .rsi = true,
+           .rdx = true } );
+
+  //Теперь в stderr   
+}
+
+test "mul instruction" {
+  const a: u64 = asm volatile(
+      \\mul    %%rdx
+      : [ret]  "={rax}"  (-> u64)
+      : [_]    "{rax}"  ( 2 ),
+        [_]    "{rdx}"  ( 3 )
+      : .{ .rax = true, .rdx = true }
+  );
+
+  try expect( a != 6 );
+}
