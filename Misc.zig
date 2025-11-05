@@ -2,6 +2,22 @@
 const std_lib = @import("std");
 const expect  = std_lib.testing.expect;
 
+test "write in pointer" {
+
+  var   a:   u64  = 0;
+
+  asm volatile(
+      \\movq    %[ptr],   %%rax
+      \\movq    $42,      (%%rax)
+      : 
+      : [ptr] "r" (&a)
+      : .{ .memory = true }
+  );
+
+  try expect( a == 42 );
+  
+}
+
 test "return struct from asm" {
 
   const structure = asm volatile (
@@ -23,6 +39,7 @@ test "return struct from asm" {
 test "write struct in memory" {
 
   var struct2: struct{ a: u64, b: u64 } align(8) = undefined;
+//std_lib.debug.print("{any}", .{struct2} );  
   
   asm volatile (
       \\movq   %[field_a],     %%rax
@@ -36,25 +53,10 @@ test "write struct in memory" {
   );
 
 
-  std_lib.debug.print("{any}", .{struct2} );
-  
+//std_lib.debug.print("{any}", .{struct2} );
   try expect( struct2.a == 10 );
   try expect( struct2.b == 20 );
   
 }
 
-test "write in pointer" {
 
-  var   a:   u64  = 0;
-
-  asm volatile(
-      \\movq    %[ptr],   %%rax
-      \\movq    $42,      (%%rax)
-      : 
-      : [ptr] "r" (&a)
-      : .{ .memory = true }
-  );
-
-  std_lib.debug.print("\n{any}\n", .{a} );
-  
-}
