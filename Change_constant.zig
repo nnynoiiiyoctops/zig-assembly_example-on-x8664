@@ -11,11 +11,14 @@ pub fn main() !void {
   var writer: std_lib.fs.File.Writer = .init( std_lib.fs.File.stdout(), &out_buf );
   try writer.interface.print( "\n| BEFORE: {d} |", .{a});
 
+  // В Simple_arythmetic.zig более подробно о синтаксисе
+  
   asm volatile(
-      \\mov $24, %%rax
-      \\mov %%rax, %[a]
+      \\mov     $24,     %%rax
+      \\mov     %%rax,   %[value]
+      : [value] "r" (a)
       :
-      : [a] "r" (a)
+      : .{}
   );
 
   try writer.interface.print( "\n| AFTER: {d} |", .{a});
@@ -24,3 +27,15 @@ pub fn main() !void {
   return;
 }
   
+  // asm volatile(
+  //     \\mov $24, %%rax
+  //     \\mov %%rax, %[value]
+  //     :
+  //     : [value] "r" (a)
+  //     : .{}
+  // );
+//Но уже данный пример будет работать.
+//Так как тут нет вывода. Тут ввод значения.
+//Можно проверить заменив ассемблерную вставку.
+//Программа соберется. И даже запустится.
+//Но константа не изменится. Ведь вывод - пуст.
