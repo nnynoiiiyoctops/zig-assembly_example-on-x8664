@@ -6,5 +6,6 @@
 zig-cache/
 zig-out/
 
+#Я не умею в билдсистему
 build.zig
 build.zig.zon
